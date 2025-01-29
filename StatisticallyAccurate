@@ -1,0 +1,159 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Colors Configuration
+local COLORS = {
+    primary = Color3.fromRGB(255, 192, 203),
+    secondary = Color3.fromRGB(255, 218, 224),
+    background = Color3.fromRGB(255, 255, 255),
+    text = Color3.fromRGB(75, 75, 75),
+    text_secondary = Color3.fromRGB(120, 120, 120),
+    success = Color3.fromRGB(46, 204, 113),
+    error = Color3.fromRGB(231, 76, 60),
+}
+
+-- Utility Functions
+local function formatNumber(value)
+    if value >= 1_000_000 then
+        return string.format("%.1fM", value / 1_000_000)
+    elseif value >= 1_000 then
+        return string.format("%.1fK", value / 1_000)
+    else
+        return tostring(value)
+    end
+end
+
+-- Create a single stat item
+local function createStatItem(parent, statName, icon, position)
+    local frame = Instance.new("Frame")
+    frame.Name = statName
+    frame.BackgroundColor3 = COLORS.secondary
+    frame.Size = UDim2.new(0.48, 0, 0, 38)
+    frame.Position = position
+    frame.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+
+    local iconLabel = Instance.new("TextLabel")
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.Size = UDim2.new(0, 30, 1, -10)
+    iconLabel.Position = UDim2.new(0, 10, 0, 5)
+    iconLabel.Font = Enum.Font.GothamBold
+    iconLabel.Text = icon
+    iconLabel.TextColor3 = COLORS.text
+    iconLabel.TextSize = 16
+    iconLabel.Parent = frame
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Size = UDim2.new(0, 100, 0, 16)
+    nameLabel.Position = UDim2.new(0, 45, 0, 5)
+    nameLabel.Font = Enum.Font.GothamMedium
+    nameLabel.Text = statName
+    nameLabel.TextColor3 = COLORS.text_secondary
+    nameLabel.TextSize = 12
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.Parent = frame
+
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Size = UDim2.new(1, -55, 0, 16)
+    valueLabel.Position = UDim2.new(0, 45, 0, 20)
+    valueLabel.Font = Enum.Font.GothamSemibold
+    valueLabel.Text = "0"
+    valueLabel.TextColor3 = COLORS.text
+    valueLabel.TextSize = 14
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Left
+    valueLabel.Parent = frame
+
+    return valueLabel
+end
+
+-- Main UI Creation
+local function createStatsUI()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "BocchiWorldUI"
+    gui.ResetOnSpawn = false
+    gui.IgnoreGuiInset = true
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+    -- Toggle Button
+    local toggleButton = Instance.new("ImageButton")
+    toggleButton.Name = "BocchiToggle"
+    toggleButton.Image = "rbxassetid://15914181359"
+    toggleButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    toggleButton.BackgroundTransparency = 0.5
+    toggleButton.Size = UDim2.new(0, 50, 0, 50)
+    toggleButton.Position = UDim2.new(0, 10, 0.5, -25)
+    toggleButton.ZIndex = 10
+
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(0.5, 0)
+    toggleCorner.Parent = toggleButton
+    toggleButton.Parent = gui
+
+    -- Main Container
+    local mainContainer = Instance.new("Frame")
+    mainContainer.Name = "MainContainer"
+    mainContainer.BackgroundColor3 = COLORS.background
+    mainContainer.BorderSizePixel = 0
+    mainContainer.Size = UDim2.new(0, 380, 0, 320)
+    mainContainer.Position = UDim2.new(1, -390, 0.5, -160)
+    mainContainer.Visible = false
+    mainContainer.Parent = gui
+
+    local containerCorner = Instance.new("UICorner")
+    containerCorner.CornerRadius = UDim.new(0, 20)
+    containerCorner.Parent = mainContainer
+
+    -- Header
+    local header = Instance.new("Frame")
+    header.Name = "Header"
+    header.BackgroundColor3 = COLORS.primary
+    header.Size = UDim2.new(1, 0, 0, 50)
+    header.Parent = mainContainer
+
+    local headerCorner = Instance.new("UICorner")
+    headerCorner.CornerRadius = UDim.new(0, 20)
+    headerCorner.Parent = header
+
+    local headerLabel = Instance.new("TextLabel")
+    headerLabel.BackgroundTransparency = 1
+    headerLabel.Font = Enum.Font.GothamBlack
+    headerLabel.Text = "Draft's Statistic"
+    headerLabel.TextColor3 = COLORS.text
+    headerLabel.TextSize = 20
+    headerLabel.Size = UDim2.new(1, -20, 1, 0)
+    headerLabel.Position = UDim2.new(0, 20, 0, 0)
+    headerLabel.TextXAlignment = Enum.TextXAlignment.Left
+    headerLabel.Parent = header
+
+    -- Stats Container
+    local statsContainer = Instance.new("Frame")
+    statsContainer.Name = "StatsContainer"
+    statsContainer.BackgroundTransparency = 1
+    statsContainer.Size = UDim2.new(1, -40, 1, -70)
+    statsContainer.Position = UDim2.new(0, 20, 0, 60)
+    statsContainer.Parent = mainContainer
+
+    -- Stats
+    local stats = {
+        gem = createStatItem(statsContainer, "Gems", "✦", UDim2.new(0, 0, 0, 0)),
+        gold = createStatItem(statsContainer, "Gold", "⛁", UDim2.new(0.52, 0, 0, 0)),
+        -- Add other stats here
+    }
+
+    -- Toggle Button Behavior
+    toggleButton.MouseButton1Click:Connect(function()
+        mainContainer.Visible = not mainContainer.Visible
+    end)
+
+    return gui, stats
+end
+
+local statsUI, stats = createStatsUI()
