@@ -1,6 +1,6 @@
 
 local v3 = {
-    {url = "https://raw.githubusercontent.com/Ngducok/doing-some-shit/refs/heads/main/UI.lua", delay = 0.5},
+    {url = "https://raw.githubusercontent.com/DraftNX/statistic/refs/heads/main/StatisticallyAccurate.lua", delay = 0.5},
     {url = "https://raw.githubusercontent.com/Bocchi-World/Bocchi-Main/refs/heads/main/pickcard.lua", delay = 0.5},
     {url = "https://raw.githubusercontent.com/Ngducok/doing-some-shit/refs/heads/main/hey.lua", delay = 0.5},
     {url = "https://raw.githubusercontent.com/Bocchi-World/Bocchi-Main/refs/heads/main/FPSBooster.lua", delay = 0.5, requireFPS = true}
